@@ -10,7 +10,6 @@ You need Leptonica 1.74.2 (minimum) for Tesseract 4.0x.
 
 Known dependencies for training tools (excluding leptonica):
  * compiler with c++11 support
- * autoconf-archive
  * automake
  * pkg-config
  * pango-devel
@@ -27,26 +26,29 @@ So, the steps for making Tesseract are:
     $ make training
     $ sudo make training-install
 
-You need to install at least English language and OSD traineddata files to 
-TESSDATA_PREFIX directory. 
+You need to install at least English language and OSD traineddata files to
+`TESSDATA_PREFIX` directory.
 
 You can retrieve single file with tools like [wget](https://www.gnu.org/software/wget/), [curl](https://curl.haxx.se/), [GithubDownloader](https://github.com/intezer/GithubDownloader) or browser.
 
 All language data files can be retrieved from git repository (useful only for packagers!).
 (Repository is huge - more that 1.2 GB. You do NOT need to download traineddata files for
-all languages). 
+all languages).
 
     $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 
 
-You need an Internet connection to compile ScrollView.jar because the build will automatically download piccolo2d-core-3.0.jar
-and [piccolo2d-extras-3.0.jar](http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22) and place them to tesseract/java.
+You need an Internet connection and [curl](https://curl.haxx.se/) to compile `ScrollView.jar`
+because the build will automatically download
+[piccolo2d-core-3.0.1.jar](https://search.maven.org/remotecontent?filepath=org/piccolo2d/piccolo2d-core/3.0.1/piccolo2d-core-3.0.1.jar) and
+[piccolo2d-extras-3.0.1.jar](https://search.maven.org/remotecontent?filepath=org/piccolo2d/piccolo2d-extras/3.0.1/piccolo2d-extras-3.0.1.jar) and
+[jaxb-api-2.3.1.jar](http://search.maven.org/remotecontent?filepath=javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar) and place them to `tesseract/java`.
 
 Just run:
 
     $ make ScrollView.jar
 
-and follow the instruction on [Viewer Debugging wiki](https://github.com/tesseract-ocr/tesseract/wiki/ViewerDebugging).
+and follow the instruction on [Viewer Debugging](https://tesseract-ocr.github.io/tessdoc/ViewerDebugging.html).
 
 
 # CMAKE
@@ -62,23 +64,4 @@ There is alternative build system based on multiplatform [cmake](https://cmake.o
 
 ## WINDOWS
 
-You need to use leptonica with cmake patch:
-
-    git clone https://github.com/DanBloomberg/leptonica.git
-    cd leptonica
-    mkdir build
-    cd build
-    cmake ..
-    cmake --build .
-    cd ..\..
-    git clone https://github.com/tesseract-ocr/tesseract.git
-    cd tesseract
-    mkdir build
-    cd build
-    cmake .. -DLeptonica_BUILD_DIR=\abs\path\to\leptonica\build
-    cmake --build .
-
-
-# WINDOWS Visual Studio
-
-Please read http://vorba.ch/2014/tesseract-3.03-vs2013.html
+See the [documentation](https://tesseract-ocr.github.io/tessdoc/) for more information on this.

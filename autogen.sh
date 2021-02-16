@@ -13,8 +13,9 @@
 # better deal with the GNU autotools, specifically:
 #
 #   aclocal
-#   autoheader
+#   libtoolize
 #   autoconf
+#   autoheader
 #   automake
 #
 # The whole thing is quite complex...
@@ -39,17 +40,16 @@
 if [ "$1" = "clean" ]; then
     echo "Cleaning..."
     rm configure aclocal.m4
-    rm m4/*
-    rmdir m4
+    rm m4/l*
     rm config/*
     rmdir config
     find . -iname "Makefile.in" -type f -exec rm '{}' +
 fi
 
-# Prevent any errors that might result from failing to properly invoke 
-# `libtoolize` or `glibtoolize,` whichever is present on your system, 
-# from occurring by testing for its existence and capturing the absolute path to 
-# its location for caching purposes prior to using it later on in 'Step 2:'  
+# Prevent any errors that might result from failing to properly invoke
+# `libtoolize` or `glibtoolize,` whichever is present on your system,
+# from occurring by testing for its existence and capturing the absolute path to
+# its location for caching purposes prior to using it later on in 'Step 2:'
 if command -v libtoolize >/dev/null 2>&1; then
   LIBTOOLIZE="$(command -v libtoolize)"
 elif command -v glibtoolize >/dev/null 2>&1; then
@@ -59,21 +59,16 @@ else
   bail_out
 fi
 
-# create m4 directory if it does not exist
-if [ ! -d m4 ];  then
-    mkdir m4
-fi
-
 bail_out()
 {
     echo
-    echo "  Something went wrong, bailing out!" 
+    echo "  Something went wrong, bailing out!"
     echo
     exit 1
 }
 
 # --- Step 1: Generate aclocal.m4 from:
-#             . acinclude.m4 
+#             . acinclude.m4
 #             . config/*.m4 (these files are referenced in acinclude.m4)
 
 mkdir -p config
@@ -87,13 +82,27 @@ echo "Running $LIBTOOLIZE"
 $LIBTOOLIZE -f -c || bail_out
 $LIBTOOLIZE --automake || bail_out
 
-# --- Step 3: Generate config.h.in from:
+# --- Step 3: Generate configure and include/miaconfig.h from:
+#             . configure.ac
+#
+
+echo "Running autoconf"
+autoconf || bail_out
+
+if grep -q PKG_CHECK_MODULES configure; then
+  # The generated configure is invalid because pkg-config is unavailable.
+  rm configure
+  echo "Missing pkg-config. Check the build requirements."
+  bail_out
+fi
+
+# --- Step 4: Generate config.h.in from:
 #             . configure.ac (look for AM_CONFIG_HEADER tag or AC_CONFIG_HEADER tag)
 
 echo "Running autoheader"
 autoheader -f || bail_out
 
-# --- Step 4: Generate Makefile.in, src/Makefile.in, and a whole bunch of
+# --- Step 5: Generate Makefile.in, src/Makefile.in, and a whole bunch of
 #             files in config (config.guess, config.sub, depcomp,
 #             install-sh, missing, mkinstalldirs) plus COPYING and
 #             INSTALL from:
@@ -105,13 +114,6 @@ autoheader -f || bail_out
 
 echo "Running automake --add-missing --copy"
 automake --add-missing --copy --warnings=all || bail_out
-
-# --- Step 5: Generate configure and include/miaconfig.h from:
-#             . configure.ac
-#
-
-echo "Running autoconf"
-autoconf || bail_out
 
 echo ""
 echo "All done."

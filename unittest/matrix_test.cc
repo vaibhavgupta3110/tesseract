@@ -16,13 +16,15 @@
 
 #include "matrix.h"
 #include "include_gunit.h"
-#include "genericvector.h"
-#include "tprintf.h"
 
-namespace {
+namespace tesseract {
 
 class MatrixTest : public ::testing::Test {
  protected:
+  void SetUp() override {
+    std::locale::global(std::locale(""));
+  }
+
   // Fills src_ with data so it can pretend to be a tensor thus:
   //  dims_=[5, 4, 3, 2]
   //  array_=[0, 1, 2, ....119]
